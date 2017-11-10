@@ -34,7 +34,7 @@ object ComplexPlaneSection {
   def apply(centreX: Double, centreY: Double, width: Int, height: Int, zoom: Double): ComplexPlaneSection = {
     val complexPoints = Seq.tabulate[ComplexPoint](width, height) { (w, h) =>
       val x: Double = centreX + zoom * (w.toDouble / width - 0.5)
-      val y: Double = centreY + zoom * (h.toDouble / height - 0.5) * height.toDouble / width
+      val y: Double = centreY + zoom * (0.5 - h.toDouble / height) * height.toDouble / width
       ComplexPoint(Pixel(w, h), Complex(x, y))
     }.flatten
     ComplexPlaneSection(complexPoints)
