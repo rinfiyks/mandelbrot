@@ -16,4 +16,6 @@ case class Complex(re: Double, im: Double) {
 
   def abs: Double = math.sqrt(absSquared)
 
+  override def toString: String = s"$re + ${im}i"
+
 }
