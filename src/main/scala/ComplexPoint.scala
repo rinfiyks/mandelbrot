@@ -12,13 +12,17 @@ case class ComplexPoint(pixel: Pixel, complex: Complex) {
       if (iteration > maxIterations) return Color.rgb(0, 0, 0) // Black
       val next: Complex = (z * z) + complex
       if (next.absSquared > 4) {
-        val r = iteration % maxColour
-        val g = (iteration * 2) % maxColour
-        val b = (iteration * 3) % maxColour
+        val r = triangle(maxIterations * math.log(1 + iteration.toDouble / maxIterations))
+        val g = triangle(maxIterations * math.log(1 + iteration.toDouble / maxIterations) * 2)
+        val b = triangle(maxIterations * math.log(1 + iteration.toDouble / maxIterations) * 3)
         return Color.rgb(r, g, b)
       }
       go(next, iteration + 1)
     }
+
+    // Makes the modulus result triangle-shaped /\/\/\ rather than sawtooth-shaped /|/|/|
+    // for a smoother colour transition
+    def triangle(i: Double): Int = maxColour - math.abs(i.toInt % (2 * maxColour) - maxColour)
 
     go()
   }

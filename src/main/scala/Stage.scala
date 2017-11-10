@@ -58,8 +58,8 @@ object Stage extends JFXApp {
         val newRe = point.get.complex.re
         val newIm = point.get.complex.im
         val newZoom = e.button match {
-          case MouseButton.Primary => location.now.zoom / 2
-          case MouseButton.Secondary => location.now.zoom * 2
+          case MouseButton.Primary => location.now.zoom / 4
+          case MouseButton.Secondary => location.now.zoom * 4
           case _ => location.now.zoom
         }
         location() = Location(Complex(newRe, newIm), newZoom)
@@ -74,7 +74,7 @@ object Stage extends JFXApp {
   private def draw(): Unit = {
     val start = System.currentTimeMillis()
 
-    println(s"[${dimensions.now.width} x ${dimensions.now.height}] [${location.now.point}] [${location.now.zoom}]")
+    println(s"[${dimensions.now.width} x ${dimensions.now.height}] [${location.now.point}] [z: ${location.now.zoom}] [i: ${maxIterations.now}]")
     complexPlaneSection.now.complexPoints.foreach { complexPoint =>
       pw.setColor(complexPoint.pixel.x, complexPoint.pixel.y, complexPoint.getColour(maxIterations.now))
     }
