@@ -3,6 +3,7 @@ import scalafx.application.{JFXApp, Platform}
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.Scene
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
+import scalafx.scene.image.PixelWriter
 import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import scalafx.scene.layout.BorderPane
 import scalafx.scene.paint.Color
@@ -40,9 +41,9 @@ object Stage extends JFXApp {
 
     val section = ComplexPlaneSection(-0.75, 0, canvas.width.value.toInt, canvas.height.value.toInt, 3.0)
 
-    section.complexPoints.foreach { c =>
-      gc.fill = getColour(c.complex, 100)
-      gc.fillRect(c.pixel.x, c.pixel.y, 1, 1)
+    section.complexPoints.foreach { complexPoint =>
+      val pw: PixelWriter = gc.pixelWriter
+      pw.setColor(complexPoint.pixel.x, complexPoint.pixel.y, getColour(complexPoint.complex, 100))
     }
 
     val end = System.currentTimeMillis()
@@ -65,6 +66,7 @@ object Stage extends JFXApp {
       }
       go(next, iteration + 1)
     }
+
     go()
   }
 }
