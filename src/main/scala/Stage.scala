@@ -5,6 +5,7 @@ import scalafx.scene.Scene
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.input.{KeyCode, KeyEvent, MouseEvent}
 import scalafx.scene.layout.BorderPane
+import scalafx.scene.paint.Color
 
 object Stage extends JFXApp {
 
@@ -36,16 +37,34 @@ object Stage extends JFXApp {
   private def draw(): Unit = {
     println("Drawing")
     val start = System.currentTimeMillis()
-    val c = MCanvas(-0.75, 0, canvas.width.value.toInt, canvas.height.value.toInt, 3.0, 200)
 
-    for {
-      i <- 0 until canvas.width.value.toInt
-      j <- 0 until canvas.height.value.toInt
-    } {
-      gc.fill = c.pixels(i)(j).toScalaFXColor
-      gc.fillRect(i, j, 1, 1)
+    val section = ComplexPlaneSection(-0.75, 0, canvas.width.value.toInt, canvas.height.value.toInt, 3.0)
+
+    section.complexPoints.foreach { c =>
+      gc.fill = getColour(c.complex, 100)
+      gc.fillRect(c.pixel.x, c.pixel.y, 1, 1)
     }
+
     val end = System.currentTimeMillis()
     println(s"Duration = ${end - start} ms")
+  }
+
+  // TODO move into its own class/object
+  private def getColour(c: Complex, maxIterations: Int): Color = {
+    val maxColour = 255
+
+    @annotation.tailrec
+    def go(z: Complex = Complex(0, 0), iteration: Int = 0): Color = {
+      if (iteration > maxIterations) return Color.rgb(0, 0, 0) // Black
+      val next: Complex = (z * z) + c
+      if (next.absSquared > 4) {
+        val r = iteration % maxColour
+        val g = (iteration * 2) % maxColour
+        val b = (iteration * 3) % maxColour
+        return Color.rgb(r, g, b)
+      }
+      go(next, iteration + 1)
+    }
+    go()
   }
 }
