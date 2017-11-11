@@ -1,18 +1,24 @@
+import java.io.File
+import javax.imageio.ImageIO
+
 import rx._
 
 import scalafx.Includes._
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.application.{JFXApp, Platform}
+import scalafx.embed.swing.SwingFXUtils
 import scalafx.scene.Scene
 import scalafx.scene.canvas.Canvas
-import scalafx.scene.image.PixelWriter
+import scalafx.scene.image.{PixelWriter, WritableImage}
 import scalafx.scene.input.{KeyCode, KeyEvent, MouseButton, MouseEvent}
 import scalafx.scene.layout.BorderPane
+import scalafx.stage.FileChooser
 
 object Stage extends JFXApp {
+  self =>
 
-  private val initialWidth = 800
-  private val initialHeight = 600
+  private val initialWidth = 600
+  private val initialHeight = 480
 
   private val canvas: Canvas = new Canvas()
   private val pw: PixelWriter = canvas.graphicsContext2D.pixelWriter
@@ -50,13 +56,14 @@ object Stage extends JFXApp {
           dimensions() = PlaneDimensions(canvas.width.value.toInt, canvas.height.value.toInt)
           if (previousDimensions == dimensions.now) draw()
         case KeyCode.Q => Platform.exit()
+        case KeyCode.S => saveImage
         case _ =>
       }
 
       onMouseClicked = (e: MouseEvent) => {
-        val point = complexPlaneSection.now.complexPoints.find(p => p.pixel.x == e.x.toInt && p.pixel.y == e.y.toInt)
-        val newRe = point.get.complex.re
-        val newIm = point.get.complex.im
+        val point = complexPlaneSection.now.complexPoints.find(p => p.pixel.x == e.x.toInt && p.pixel.y == e.y.toInt).get
+        val newRe = point.complex.re
+        val newIm = point.complex.im
         val newZoom = e.button match {
           case MouseButton.Primary => location.now.zoom / 4
           case MouseButton.Secondary => location.now.zoom * 4
@@ -82,6 +89,17 @@ object Stage extends JFXApp {
     val end = System.currentTimeMillis()
     println(s"Duration = ${end - start} ms")
     println()
+  }
+
+  private def saveImage(): Unit = {
+    val fileChooser: FileChooser = new FileChooser()
+    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG (*.png)", "*.png"))
+    val file = fileChooser.showSaveDialog(self.stage)
+    if (file == null) return // needed if you click cancel on the dialog
+    val fileWithExt: File = new File(file.getAbsolutePath + ".png")
+    val image = new WritableImage(dimensions.now.width, dimensions.now.height)
+    canvas.snapshot(null, image)
+    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", fileWithExt)
   }
 
 }
